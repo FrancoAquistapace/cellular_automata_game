@@ -19,6 +19,7 @@ import pygame
 import sys
 
 # Import scripts
+from grid import Grid
 
 
 # Define main simulation class
@@ -31,8 +32,13 @@ class Simulation():
         pygame.init()
         pygame.display.set_caption('Cellular Automata')
         self.screen = pygame.display.set_mode((self.width, self.height))
+        self.display = pygame.Surface((self.width, self.height))
 
         self.clock = pygame.time.Clock()
+
+        # Initialize the grid
+        self.grid_size = 10
+        self.grid = Grid(self, self.grid_size)
 
     def run(self):
         # Main simulation loop
