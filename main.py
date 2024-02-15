@@ -26,13 +26,20 @@ from grid import Grid
 class Simulation():
     def __init__(self):
         self.width = 640
-        self.height = 480
+        self.height = 640
 
         # Initialize screen and display
         pygame.init()
         pygame.display.set_caption('Cellular Automata')
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.display = pygame.Surface((self.width, self.height))
+
+        # Display manipulation settings
+        self.display_size = list(self.screen.get_size())
+        self.display_zoom = 4
+        self.display_offset = [0, 0]
+        self.display_scroll = [0, 0]
+        self.scroll_speed = 1
 
         self.clock = pygame.time.Clock()
 
@@ -43,12 +50,58 @@ class Simulation():
     def run(self):
         # Main simulation loop
         while True:
+            self.screen.fill((0, 0, 0))
+            self.display.fill((0, 0, 0))
+            rect = pygame.Surface((self.width // 2, self.height // 2))
+            rect.fill((255, 255, 255))
+            self.display.blit(rect, (0, 0))
+
+            # Update display offset
+            self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
+            self.display_offset[1] += self.display_scroll[1] * self.scroll_speed
 
             # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Zoom in
+                    if event.button == 4:
+                        self.display_size[0] += self.display_zoom
+                        self.display_size[1] += self.display_zoom
+                    # Zoom out
+                    if event.button == 5:
+                        self.display_size[0] -= self.display_zoom
+                        self.display_size[1] -= self.display_zoom
+
+                if event.type == pygame.KEYDOWN:
+                    # Activate scrolling
+                    if event.key == pygame.K_LEFT:
+                        self.display_scroll[0] = 1
+                    if event.key == pygame.K_RIGHT:
+                        self.display_scroll[0] = -1
+                    if event.key == pygame.K_UP:
+                        self.display_scroll[1] = 1
+                    if event.key == pygame.K_DOWN:
+                        self.display_scroll[1] = -1
+
+                if event.type == pygame.KEYUP:
+                    # Deactivate scrolling
+                    if event.key == pygame.K_LEFT:
+                        self.display_scroll[0] = 0
+                    if event.key == pygame.K_RIGHT:
+                        self.display_scroll[0] = 0
+                    if event.key == pygame.K_UP:
+                        self.display_scroll[1] = 0
+                    if event.key == pygame.K_DOWN:
+                        self.display_scroll[1] = 0
+            
+            # Blit display and update screen
+            self.screen.blit(pygame.transform.scale(self.display, 
+                                                    self.display_size), 
+                                                    self.display_offset)
 
             pygame.display.update()
             self.clock.tick(60)
