@@ -42,8 +42,16 @@ class Grid():
             for j in range(grid_size):
                 self.cells[str(i)+';'+str(j)] = 0
 
+        self.alive_cells = [(4, 5), (5, 5), (5, 4)]
+
     def update(self):
         return None
 
     def render(self, surf):
-        return None
+        # Render a white square at the position of each 
+        # cell that is alive
+        for cell in self.alive_cells:
+            pos = [cell[0] * self.sim.width // 10, cell[1] * self.sim.height // 10]
+            cell_surf = pygame.Surface((self.sim.width // 10, self.sim.height // 10))
+            cell_surf.fill((255,255,255))
+            surf.blit(cell_surf, pos)

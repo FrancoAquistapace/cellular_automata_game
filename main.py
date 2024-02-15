@@ -52,13 +52,13 @@ class Simulation():
         while True:
             self.screen.fill((0, 0, 0))
             self.display.fill((0, 0, 0))
-            rect = pygame.Surface((self.width // 2, self.height // 2))
-            rect.fill((255, 255, 255))
-            self.display.blit(rect, (0, 0))
 
             # Update display offset
             self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
             self.display_offset[1] += self.display_scroll[1] * self.scroll_speed
+
+            # Render alive cells
+            self.grid.render(self.display)
 
             # Event handling
             for event in pygame.event.get():
