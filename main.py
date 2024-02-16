@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
-from button import Button
+from button import PlayButton
 
 
 # Define main simulation class
@@ -28,6 +28,9 @@ class Simulation():
     def __init__(self):
         self.width = 640
         self.height = 640
+        self.margin_color = (107, 103, 105)
+        self.button_color_off = (200, 200, 200)
+        self.button_color_on = (255, 255, 255)
 
         # Initialize screen and display
         pygame.init()
@@ -49,7 +52,8 @@ class Simulation():
         self.grid = Grid(self, self.grid_size)
 
         # Initialize buttons
-        self.b = Button(10, 40)
+        self.b = PlayButton(self, self.button_color_on, self.button_color_off, 8, 50, 
+                            color=self.margin_color, on_color=self.margin_color, size=30)
 
         # Simulation manipulation
         self.running = False
@@ -120,6 +124,15 @@ class Simulation():
             self.screen.blit(pygame.transform.scale(self.display, 
                                                     self.display_size), 
                                                     self.display_offset)
+
+            # Render black margins for the buttons and data
+            margin_y = pygame.Surface((0.07 * self.width, self.height))
+            margin_x = pygame.Surface((self.width, 0.07 * self.height))
+            margin_y.fill(self.margin_color)
+            margin_x.fill(self.margin_color)
+
+            self.screen.blit(margin_y, (0, 0))
+            self.screen.blit(margin_x, (0, 0))
 
             # Render buttons on top of everything
             self.b.render(self.screen)
