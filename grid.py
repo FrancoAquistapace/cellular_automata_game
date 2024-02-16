@@ -102,7 +102,9 @@ class Grid():
         # Render a white square at the position of each 
         # cell that is alive
         for cell in self.alive_cells:
-            pos = [cell[0] * self.sim.width // 100, cell[1] * self.sim.height // 100]
-            cell_surf = pygame.Surface((self.sim.width // 100, self.sim.height // 100))
+            pos = [(int(self.sim.grid_size*0.09) + cell[0]) * self.sim.width // int(self.sim.grid_size * 1.1), 
+                   (int(self.sim.grid_size*0.09) + cell[1]) * self.sim.height // int(self.sim.grid_size * 1.1)]
+            cell_surf = pygame.Surface((self.sim.width // int(self.sim.grid_size * 1.1), 
+                                        self.sim.height // int(self.sim.grid_size * 1.1)))
             cell_surf.fill((255,255,255))
             surf.blit(cell_surf, pos)

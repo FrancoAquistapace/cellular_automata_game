@@ -20,6 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
+from button import Button
 
 
 # Define main simulation class
@@ -39,13 +40,19 @@ class Simulation():
         self.display_zoom = 4
         self.display_offset = [0, 0]
         self.display_scroll = [0, 0]
-        self.scroll_speed = 1
+        self.scroll_speed = 10
 
         self.clock = pygame.time.Clock()
 
         # Initialize the grid
         self.grid_size = 100
         self.grid = Grid(self, self.grid_size)
+
+        # Initialize buttons
+        self.b = Button(10, 40)
+
+        # Simulation manipulation
+        self.running = False
 
     def run(self):
         # Main simulation loop
@@ -57,8 +64,13 @@ class Simulation():
             self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
             self.display_offset[1] += self.display_scroll[1] * self.scroll_speed
 
+            # Get mouse position and button status
+            mpos = pygame.mouse.get_pos()
+            on_play = self.b.update(mpos)
+
             # Update grid and render alive cells
-            self.grid.update()
+            if self.running:
+                self.grid.update()
             self.grid.render(self.display)
 
             # Event handling
@@ -68,14 +80,19 @@ class Simulation():
                     sys.exit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if on_play:
+                            self.running = not self.running
                     # Zoom in
                     if event.button == 4:
                         self.display_size[0] += self.display_zoom
                         self.display_size[1] += self.display_zoom
                     # Zoom out
                     if event.button == 5:
-                        self.display_size[0] -= self.display_zoom
-                        self.display_size[1] -= self.display_zoom
+                        self.display_size[0] = max(self.display_size[0] - self.display_zoom, 
+                                                    self.screen.get_size()[0])
+                        self.display_size[1] = max(self.display_size[1] - self.display_zoom, 
+                                                    self.screen.get_size()[1])
 
                 if event.type == pygame.KEYDOWN:
                     # Activate scrolling
@@ -103,6 +120,9 @@ class Simulation():
             self.screen.blit(pygame.transform.scale(self.display, 
                                                     self.display_size), 
                                                     self.display_offset)
+
+            # Render buttons on top of everything
+            self.b.render(self.screen)
 
             pygame.display.update()
             self.clock.tick(60)
