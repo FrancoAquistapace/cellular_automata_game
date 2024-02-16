@@ -39,8 +39,18 @@ class Grid():
         
         # Build the grid
         self.cells = dict()
-        for i in range(grid_size):
-            for j in range(grid_size):
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                self.cells[str(i)+';'+str(j)] = {'pos': [i, j],
+                                                 'state': random.randint(0,1)}
+
+        self.alive_cells = [self.cells[cell]['pos'] for cell in self.cells if self.cells[cell]['state'] == 1]
+
+    def reset_random(self):
+        # Rebuild the grid
+        self.cells = dict()
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
                 self.cells[str(i)+';'+str(j)] = {'pos': [i, j],
                                                  'state': random.randint(0,1)}
 

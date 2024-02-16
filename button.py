@@ -96,3 +96,28 @@ class RefocusButton(PlayButton):
         if not self.sim.centered:
             pygame.draw.circle(surf, self.play_color, center, 
                             radius=self.size/7, width=int(self.size/10))
+
+
+# Reset random button
+class RandomResetButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+
+    def render(self, surf):
+        surf.blit(self.img, (self.x, self.y))
+
+        rect_pos = [(self.x + 0.25 * self.size, self.y + 0.2 * self.size),
+                    (self.x + 0.25 * self.size, self.y + 0.4 * self.size), 
+                    (self.x + 0.25 * self.size, self.y + 0.6 * self.size),
+                    (self.x + 0.45 * self.size, self.y + 0.2 * self.size),
+                    (self.x + 0.45 * self.size, self.y + 0.4 * self.size), 
+                    (self.x + 0.45 * self.size, self.y + 0.6 * self.size),
+                    (self.x + 0.65 * self.size, self.y + 0.2 * self.size),
+                    (self.x + 0.65 * self.size, self.y + 0.4 * self.size), 
+                    (self.x + 0.65 * self.size, self.y + 0.6 * self.size)]
+        for pos in rect_pos:
+            pygame.draw.rect(surf, self.play_color, 
+                            [pos[0], pos[1], self.size//10, self.size//10], 0)
