@@ -46,6 +46,16 @@ class Grid():
 
         self.alive_cells = [self.cells[cell]['pos'] for cell in self.cells if self.cells[cell]['state'] == 1]
 
+    def clear(self):
+        # Clear the grid
+        self.cells = dict()
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                self.cells[str(i)+';'+str(j)] = {'pos': [i, j],
+                                                 'state': 0}
+
+        self.alive_cells = []
+
     def reset_random(self):
         # Rebuild the grid
         self.cells = dict()

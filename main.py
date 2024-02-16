@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
-from button import PlayButton, RefocusButton, RandomResetButton
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton
 
 
 # Define main simulation class
@@ -59,6 +59,8 @@ class Simulation():
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.rr_button = RandomResetButton(self, self.button_color_on, self.button_color_off, 3, 130, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
+        self.clear_button = ClearButton(self, self.button_color_on, self.button_color_off, 3, 170, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
 
         # Simulation manipulation
         self.running = False
@@ -79,6 +81,7 @@ class Simulation():
             on_play = self.play_button.update(mpos)
             on_focus = self.refocus_button.update(mpos)
             on_reset = self.rr_button.update(mpos)
+            on_clear = self.clear_button.update(mpos)
             on_grid = self.grid_area.collidepoint(mpos)
 
             # Update grid and render alive cells
@@ -105,11 +108,14 @@ class Simulation():
                         # If random reset, generate a new random grid
                         if on_reset:
                             self.grid.reset_random()
-
-                        # If we are in the grid area try to toggle the closest
-                        # cell
+                        # If on clear button then clear the grid
+                        if on_clear:
+                            self.grid.clear()
+                        # If we are in the grid area try to toggle the 
+                        # closest cell
                         if on_grid:
                             self.grid.toggle_cell(mpos)
+                        
 
                     # Zoom in
                     if event.button == 4:
@@ -180,6 +186,7 @@ class Simulation():
             self.play_button.render(self.screen)
             self.refocus_button.render(self.screen)
             self.rr_button.render(self.screen)
+            self.clear_button.render(self.screen)
 
             pygame.display.update()
             self.clock.tick(60)
