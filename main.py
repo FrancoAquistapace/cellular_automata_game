@@ -44,7 +44,7 @@ class Simulation():
         self.clock = pygame.time.Clock()
 
         # Initialize the grid
-        self.grid_size = 10
+        self.grid_size = 100
         self.grid = Grid(self, self.grid_size)
 
     def run(self):
@@ -57,7 +57,8 @@ class Simulation():
             self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
             self.display_offset[1] += self.display_scroll[1] * self.scroll_speed
 
-            # Render alive cells
+            # Update grid and render alive cells
+            self.grid.update()
             self.grid.render(self.display)
 
             # Event handling

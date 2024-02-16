@@ -16,6 +16,7 @@ limitations under the License.
 
 # Import modules
 import pygame
+import random
 
 
 # Define Grid class
@@ -40,18 +41,68 @@ class Grid():
         self.cells = dict()
         for i in range(grid_size):
             for j in range(grid_size):
-                self.cells[str(i)+';'+str(j)] = 0
+                self.cells[str(i)+';'+str(j)] = {'pos': [i, j],
+                                                 'state': random.randint(0,1)}
 
-        self.alive_cells = [(4, 5), (5, 5), (5, 4)]
+        self.alive_cells = [self.cells[cell]['pos'] for cell in self.cells if self.cells[cell]['state'] == 1]
+
+    def get_alive_condition(self, idx):
+        i, j = self.cells[idx]['pos']
+        neighbor_pos = [str(i + 1) + ';' + str(j),
+                        str(i - 1) + ';' + str(j),
+                        str(i) + ';' + str(j + 1),
+                        str(i) + ';' + str(j - 1),
+                        str(i + 1) + ';' + str(j + 1),
+                        str(i - 1) + ';' + str(j + 1),
+                        str(i + 1) + ';' + str(j - 1),
+                        str(i - 1) + ';' + str(j - 1)]
+
+        # Check that the neighbor positions are actually in the grid
+        for n_pos in neighbor_pos.copy():
+            if not n_pos in self.cells:
+                neighbor_pos.remove(n_pos)
+
+        alive_neighbors = sum([self.cells[pos]['state'] for pos in neighbor_pos])
+        
+        # Compute alive condition:
+        # Death by underpopulation
+        if self.cells[idx]['state'] == 1 and alive_neighbors < 2:
+            return -1
+        # Death by overpopulation
+        if self.cells[idx]['state'] == 1 and alive_neighbors > 3:
+            return -1
+        # Birth by reproduction
+        if self.cells[idx]['state'] == 0 and alive_neighbors == 3:
+            return 1
+
+        return 0
 
     def update(self):
-        return None
+        # Init empty list for new alive cells
+        new_alive = []
+        alive_cells = []
+        dead_cells = []
+        for cell in self.cells:
+            alive_condition = self.get_alive_condition(cell)
+            if alive_condition == 1:
+                new_alive.append(self.cells[cell]['pos'])
+                alive_cells.append(cell)
+            elif alive_condition == -1:
+                self.alive_cells.remove(self.cells[cell]['pos'])
+                dead_cells.append(cell)
+
+        self.alive_cells.extend(new_alive)
+        # Update cells
+        for cell in alive_cells:
+            self.cells[cell]['state'] = 1
+        for cell in dead_cells:
+            self.cells[cell]['state'] = 0
 
     def render(self, surf):
         # Render a white square at the position of each 
         # cell that is alive
         for cell in self.alive_cells:
-            pos = [cell[0] * self.sim.width // 10, cell[1] * self.sim.height // 10]
-            cell_surf = pygame.Surface((self.sim.width // 10, self.sim.height // 10))
+            pos = [cell[0] * self.sim.width // 100, cell[1] * self.sim.height // 100]
+            cell_surf = pygame.Surface((self.sim.width // 100, self.sim.height // 100))
             cell_surf.fill((255,255,255))
             surf.blit(cell_surf, pos)
