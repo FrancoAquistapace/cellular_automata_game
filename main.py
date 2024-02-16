@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
-from button import PlayButton
+from button import PlayButton, RefocusButton
 
 
 # Define main simulation class
@@ -44,6 +44,7 @@ class Simulation():
         self.display_offset = [0, 0]
         self.display_scroll = [0, 0]
         self.scroll_speed = 10
+        self.centered = True
 
         self.clock = pygame.time.Clock()
 
@@ -52,8 +53,10 @@ class Simulation():
         self.grid = Grid(self, self.grid_size)
 
         # Initialize buttons
-        self.b = PlayButton(self, self.button_color_on, self.button_color_off, 8, 50, 
-                            color=self.margin_color, on_color=self.margin_color, size=30)
+        self.play_button = PlayButton(self, self.button_color_on, self.button_color_off, 5, 50, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
+        self.refocus_button = RefocusButton(self, self.button_color_on, self.button_color_off, 5, 90, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
 
         # Simulation manipulation
         self.running = False
@@ -70,7 +73,8 @@ class Simulation():
 
             # Get mouse position and button status
             mpos = pygame.mouse.get_pos()
-            on_play = self.b.update(mpos)
+            on_play = self.play_button.update(mpos)
+            on_focus = self.refocus_button.update(mpos)
 
             # Update grid and render alive cells
             if self.running:
@@ -87,10 +91,18 @@ class Simulation():
                     if event.button == 1:
                         if on_play:
                             self.running = not self.running
+                        # If refocus is used reset the display settings
+                        if on_focus and not self.centered:
+                            self.display_size = list(self.screen.get_size())
+                            self.display_scroll = [0, 0]
+                            self.display_offset = [0, 0]
+                            self.centered = True
+
                     # Zoom in
                     if event.button == 4:
                         self.display_size[0] += self.display_zoom
                         self.display_size[1] += self.display_zoom
+                        self.centered = False
                     # Zoom out
                     if event.button == 5:
                         self.display_size[0] = max(self.display_size[0] - self.display_zoom, 
@@ -102,12 +114,16 @@ class Simulation():
                     # Activate scrolling
                     if event.key == pygame.K_LEFT:
                         self.display_scroll[0] = 1
+                        self.centered = False
                     if event.key == pygame.K_RIGHT:
                         self.display_scroll[0] = -1
+                        self.centered = False
                     if event.key == pygame.K_UP:
                         self.display_scroll[1] = 1
+                        self.centered = False
                     if event.key == pygame.K_DOWN:
                         self.display_scroll[1] = -1
+                        self.centered = False
 
                 if event.type == pygame.KEYUP:
                     # Deactivate scrolling
@@ -135,7 +151,8 @@ class Simulation():
             self.screen.blit(margin_x, (0, 0))
 
             # Render buttons on top of everything
-            self.b.render(self.screen)
+            self.play_button.render(self.screen)
+            self.refocus_button.render(self.screen)
 
             pygame.display.update()
             self.clock.tick(60)

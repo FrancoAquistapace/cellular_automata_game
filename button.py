@@ -76,3 +76,23 @@ class PlayButton(Button):
             ]
 
         pygame.draw.polygon(surf, self.play_color, render_points)
+
+
+# Reset camera button
+class RefocusButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+    
+    def render(self, surf):
+        surf.blit(self.img, (self.x, self.y))
+
+        center = (self.x + self.size / 2, self.y + self.size / 2)
+        pygame.draw.circle(surf, self.play_color, center, 
+                            radius=self.size/3, width=int(self.size/9))
+        # Smaller circle when display is not centered
+        if not self.sim.centered:
+            pygame.draw.circle(surf, self.play_color, center, 
+                            radius=self.size/7, width=int(self.size/10))
