@@ -62,6 +62,7 @@ class Simulation():
 
         # Simulation manipulation
         self.running = False
+        self.grid_area = pygame.Rect(0.07 * self.width, 0.07 * self.height, self.width, self.height)
 
     def run(self):
         # Main simulation loop
@@ -78,6 +79,7 @@ class Simulation():
             on_play = self.play_button.update(mpos)
             on_focus = self.refocus_button.update(mpos)
             on_reset = self.rr_button.update(mpos)
+            on_grid = self.grid_area.collidepoint(mpos)
 
             # Update grid and render alive cells
             if self.running:
@@ -103,6 +105,11 @@ class Simulation():
                         # If random reset, generate a new random grid
                         if on_reset:
                             self.grid.reset_random()
+
+                        # If we are in the grid area try to toggle the closest
+                        # cell
+                        if on_grid:
+                            self.grid.toggle_cell(mpos)
 
                     # Zoom in
                     if event.button == 4:
@@ -141,6 +148,19 @@ class Simulation():
                         self.display_scroll[1] = 0
                     if event.key == pygame.K_DOWN:
                         self.display_scroll[1] = 0
+
+
+            # Show where the cell toggle would occur
+            pos = [(mpos[0] - self.display_offset[0]) * self.width / self.display_size[0], 
+                   (mpos[1] - self.display_offset[1]) *  self.height / self.display_size[1]]
+            x = (int(pos[0]) * int(self.grid_size * 1.1) / self.width)
+            y = (int(pos[1]) * int(self.grid_size * 1.1) / self.height)
+            toggle_pos = [int(x) * self.width // int(self.grid_size * 1.1), 
+                          int(y) * self.height // int(self.grid_size * 1.1)]
+            toggle_rect = pygame.Surface((self.width // int(self.grid_size * 1.1), 
+                                        self.height // int(self.grid_size * 1.1)))
+            toggle_rect.fill((200,200,200))
+            self.display.blit(toggle_rect, toggle_pos)
             
             # Blit display and update screen
             self.screen.blit(pygame.transform.scale(self.display, 

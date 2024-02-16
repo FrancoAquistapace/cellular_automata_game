@@ -56,6 +56,20 @@ class Grid():
 
         self.alive_cells = [self.cells[cell]['pos'] for cell in self.cells if self.cells[cell]['state'] == 1]
 
+    def toggle_cell(self, mpos):
+        pos = [(mpos[0] - self.sim.display_offset[0]) * self.sim.width / self.sim.display_size[0], 
+               (mpos[1] - self.sim.display_offset[1]) *  self.sim.height / self.sim.display_size[1]]
+        x = (int(pos[0]) * int(self.sim.grid_size * 1.1) / self.sim.width) - int(self.sim.grid_size*0.09)
+        y = (int(pos[1]) * int(self.sim.grid_size * 1.1) / self.sim.height) - int(self.sim.grid_size*0.09)
+        idx = str(int(x)) + ';' + str(int(y))
+        if idx in self.cells:
+            old_state = 0 + self.cells[idx]['state']
+            if old_state == 0:
+                self.alive_cells.append(self.cells[idx]['pos'])
+            elif old_state == 1:
+                self.alive_cells.remove(self.cells[idx]['pos'])
+            self.cells[idx]['state'] = int(1 - old_state)
+
     def get_alive_condition(self, idx):
         i, j = self.cells[idx]['pos']
         neighbor_pos = [str(i + 1) + ';' + str(j),
