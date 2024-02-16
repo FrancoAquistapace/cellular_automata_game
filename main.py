@@ -31,6 +31,8 @@ class Simulation():
         self.margin_color = (107, 103, 105)
         self.button_color_off = (200, 200, 200)
         self.button_color_on = (255, 255, 255)
+        self.text_color_1 = (0, 0, 0)
+        self.text_color_2 = (250, 250, 250)
 
         # Initialize screen and display
         pygame.init()
@@ -51,6 +53,7 @@ class Simulation():
         # Initialize the grid
         self.grid_size = 100
         self.grid = Grid(self, self.grid_size)
+        self.iteration = 0
 
         # Initialize buttons
         self.play_button = PlayButton(self, self.button_color_on, self.button_color_off, 3, 50, 
@@ -61,6 +64,9 @@ class Simulation():
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.clear_button = ClearButton(self, self.button_color_on, self.button_color_off, 3, 170, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
+
+        # Initialize font
+        self.font = pygame.font.SysFont('Times New Roman', 26)
 
         # Simulation manipulation
         self.running = False
@@ -87,6 +93,7 @@ class Simulation():
             # Update grid and render alive cells
             if self.running:
                 self.grid.update()
+                self.iteration += 1
             self.grid.render(self.display)
 
             # Event handling
@@ -108,9 +115,11 @@ class Simulation():
                         # If random reset, generate a new random grid
                         if on_reset:
                             self.grid.reset_random()
+                            self.iteration = 0
                         # If on clear button then clear the grid
                         if on_clear:
                             self.grid.clear()
+                            self.iteration = 0
                         # If we are in the grid area try to toggle the 
                         # closest cell
                         if on_grid:
@@ -187,6 +196,16 @@ class Simulation():
             self.refocus_button.render(self.screen)
             self.rr_button.render(self.screen)
             self.clear_button.render(self.screen)
+
+            # Render iteration text
+            iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
+            iteration_box.fill((0,0,0))
+            iteration_str = str(self.iteration) if self.iteration <= 9999 else '+9999'
+            iteration_label = self.font.render('Iteration', True, self.text_color_1)
+            iteration_text = self.font.render(iteration_str, True, self.text_color_2)
+            self.screen.blit(iteration_box, (self.width * 0.237, self.height * 0.01))
+            self.screen.blit(iteration_text, (self.width * 0.245, self.height * 0.014))
+            self.screen.blit(iteration_label, (self.width * 0.09, self.height * 0.014))
 
             pygame.display.update()
             self.clock.tick(60)
