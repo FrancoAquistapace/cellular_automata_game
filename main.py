@@ -68,9 +68,25 @@ class Simulation():
         # Initialize font
         self.font = pygame.font.SysFont('Times New Roman', 26)
 
+        # Initialize top labels
+        self.iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
+        self.iteration_box.fill((0,0,0))
+        self.iteration_label = self.font.render('Iteration', True, self.text_color_1)
+
         # Simulation manipulation
         self.running = False
         self.grid_area = pygame.Rect(0.07 * self.width, 0.07 * self.height, self.width, self.height)
+
+        # Cell toggle visualization
+        self.toggle_rect = pygame.Surface((self.width // int(self.grid_size * 1.1), 
+                                        self.height // int(self.grid_size * 1.1)))
+        self.toggle_rect.fill((200,200,200))
+
+        # Initialize margins
+        self.margin_y = pygame.Surface((0.07 * self.width, self.height))
+        self.margin_x = pygame.Surface((self.width, 0.07 * self.height))
+        self.margin_y.fill(self.margin_color)
+        self.margin_x.fill(self.margin_color)
 
     def run(self):
         # Main simulation loop
@@ -172,10 +188,7 @@ class Simulation():
             y = (int(pos[1]) * int(self.grid_size * 1.1) / self.height)
             toggle_pos = [int(x) * self.width // int(self.grid_size * 1.1), 
                           int(y) * self.height // int(self.grid_size * 1.1)]
-            toggle_rect = pygame.Surface((self.width // int(self.grid_size * 1.1), 
-                                        self.height // int(self.grid_size * 1.1)))
-            toggle_rect.fill((200,200,200))
-            self.display.blit(toggle_rect, toggle_pos)
+            self.display.blit(self.toggle_rect, toggle_pos)
             
             # Blit display and update screen
             self.screen.blit(pygame.transform.scale(self.display, 
@@ -183,13 +196,8 @@ class Simulation():
                                                     self.display_offset)
 
             # Render black margins for the buttons and data
-            margin_y = pygame.Surface((0.07 * self.width, self.height))
-            margin_x = pygame.Surface((self.width, 0.07 * self.height))
-            margin_y.fill(self.margin_color)
-            margin_x.fill(self.margin_color)
-
-            self.screen.blit(margin_y, (0, 0))
-            self.screen.blit(margin_x, (0, 0))
+            self.screen.blit(self.margin_y, (0, 0))
+            self.screen.blit(self.margin_x, (0, 0))
 
             # Render buttons on top of everything
             self.play_button.render(self.screen)
@@ -198,14 +206,11 @@ class Simulation():
             self.clear_button.render(self.screen)
 
             # Render iteration text
-            iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
-            iteration_box.fill((0,0,0))
             iteration_str = str(self.iteration) if self.iteration <= 9999 else '+9999'
-            iteration_label = self.font.render('Iteration', True, self.text_color_1)
             iteration_text = self.font.render(iteration_str, True, self.text_color_2)
-            self.screen.blit(iteration_box, (self.width * 0.237, self.height * 0.01))
+            self.screen.blit(self.iteration_box, (self.width * 0.237, self.height * 0.01))
             self.screen.blit(iteration_text, (self.width * 0.245, self.height * 0.014))
-            self.screen.blit(iteration_label, (self.width * 0.09, self.height * 0.014))
+            self.screen.blit(self.iteration_label, (self.width * 0.09, self.height * 0.014))
 
             pygame.display.update()
             self.clock.tick(60)
