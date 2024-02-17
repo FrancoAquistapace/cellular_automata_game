@@ -141,3 +141,39 @@ class ClearButton(PlayButton):
         start_pos_2 = (self.x + 3 * self.size / 4, self.y + self.size / 4)
         end_pos_2 = (self.x + self.size / 4, self.y + 3 * self.size / 4)
         pygame.draw.line(surf, self.play_color, start_pos_2, end_pos_2, width=int(self.size/13))
+
+
+# PBC Button
+class PBCButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+
+    def render(self, surf):
+        pygame.draw.rect(surf, self.play_color, 
+                            [self.x + 0.2 * self.size, self.y + 0.2 * self.size, 
+                             0.6 * self.size, 0.6 * self.size], int(self.size/13))
+
+        if self.sim.grid.pbc:
+            # Draw horizontal lines
+            x_range = [self.x + 0.2 * self.size, self.x + 0.8 * self.size]
+            y_1 = self.y + 0.3 * self.size
+            y_2 = self.y + 0.65 * self.size
+            pygame.draw.line(surf, self.sim.margin_color, 
+                            (x_range[0], y_1), (x_range[1], y_1), 
+                             width=int(self.size/10))
+            pygame.draw.line(surf, self.sim.margin_color, 
+                            (x_range[0], y_2), (x_range[1], y_2), 
+                             width=int(self.size/10))
+            # Draw vertical lines
+            y_range = [self.y + 0.2 * self.size, self.y + 0.8 * self.size]
+            x_1 = self.x + 0.3 * self.size
+            x_2 = self.x + 0.65 * self.size
+            pygame.draw.line(surf, self.sim.margin_color, 
+                            (x_1, y_range[0]), (x_1, y_range[1]), 
+                             width=int(self.size/10))
+            pygame.draw.line(surf, self.sim.margin_color, 
+                            (x_2, y_range[0]), (x_2, y_range[1]), 
+                             width=int(self.size/10))

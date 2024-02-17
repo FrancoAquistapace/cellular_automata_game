@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
-from button import PlayButton, RefocusButton, RandomResetButton, ClearButton
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton
 
 
 # Define main simulation class
@@ -55,6 +55,9 @@ class Simulation():
         self.grid = Grid(self, self.grid_size)
         self.iteration = 0
 
+        # Initialize font
+        self.font = pygame.font.SysFont('Times New Roman', 26)
+
         # Initialize buttons
         self.play_button = PlayButton(self, self.button_color_on, self.button_color_off, 3, 50, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
@@ -64,11 +67,10 @@ class Simulation():
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.clear_button = ClearButton(self, self.button_color_on, self.button_color_off, 3, 170, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
+        self.pbc_button = PBCButton(self, self.button_color_on, self.button_color_off, 3, 210, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
 
-        # Initialize font
-        self.font = pygame.font.SysFont('Times New Roman', 26)
-
-        # Initialize top labels
+        # Initialize iteration label
         self.iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
         self.iteration_box.fill((0,0,0))
         self.iteration_label = self.font.render('Iteration', True, self.text_color_1)
@@ -93,6 +95,7 @@ class Simulation():
         while True:
             self.screen.fill((0, 0, 0))
             self.display.fill((0, 0, 0))
+            self.display.set_colorkey((0, 0, 0))
 
             # Update display offset
             self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
@@ -104,6 +107,7 @@ class Simulation():
             on_focus = self.refocus_button.update(mpos)
             on_reset = self.rr_button.update(mpos)
             on_clear = self.clear_button.update(mpos)
+            on_pbc = self.pbc_button.update(mpos)
             on_grid = self.grid_area.collidepoint(mpos)
 
             # Update grid and render alive cells
@@ -136,6 +140,9 @@ class Simulation():
                         if on_clear:
                             self.grid.clear()
                             self.iteration = 0
+                        # If on PBC, toggle PBC configuration in the grid
+                        if on_pbc:
+                            self.grid.pbc = not self.grid.pbc
                         # If we are in the grid area try to toggle the 
                         # closest cell
                         if on_grid:
@@ -191,9 +198,9 @@ class Simulation():
             self.display.blit(self.toggle_rect, toggle_pos)
             
             # Blit display and update screen
-            self.screen.blit(pygame.transform.scale(self.display, 
-                                                    self.display_size), 
-                                                    self.display_offset)
+            scaled_display = pygame.transform.scale(self.display, 
+                                                    self.display_size)
+            self.screen.blit(scaled_display, self.display_offset)
 
             # Render black margins for the buttons and data
             self.screen.blit(self.margin_y, (0, 0))
@@ -204,6 +211,7 @@ class Simulation():
             self.refocus_button.render(self.screen)
             self.rr_button.render(self.screen)
             self.clear_button.render(self.screen)
+            self.pbc_button.render(self.screen)
 
             # Render iteration text
             iteration_str = str(self.iteration) if self.iteration <= 9999 else '+9999'

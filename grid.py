@@ -36,6 +36,7 @@ class Grid():
         '''
         self.sim = sim
         self.grid_size = grid_size
+        self.pbc = False
         
         # Build the grid
         self.cells = dict()
@@ -80,21 +81,39 @@ class Grid():
                 self.alive_cells.remove(self.cells[idx]['pos'])
             self.cells[idx]['state'] = int(1 - old_state)
 
-    def get_alive_condition(self, idx):
+    def get_neighbors(self, idx):
         i, j = self.cells[idx]['pos']
-        neighbor_pos = [str(i + 1) + ';' + str(j),
-                        str(i - 1) + ';' + str(j),
-                        str(i) + ';' + str(j + 1),
-                        str(i) + ';' + str(j - 1),
-                        str(i + 1) + ';' + str(j + 1),
-                        str(i - 1) + ';' + str(j + 1),
-                        str(i + 1) + ';' + str(j - 1),
-                        str(i - 1) + ';' + str(j - 1)]
+        # General neighbor indexes
+        next_i, prev_i = i + 1, i - 1
+        next_j, prev_j = j + 1, j - 1
+        # Check for boundaries and resolve PBC
+        if i == 0 and self.pbc:
+            prev_i = self.grid_size - 1
+        if i == (self.grid_size - 1) and self.pbc:
+            next_i = 0
+        if j == 0 and self.pbc:
+            prev_j = self.grid_size - 1
+        if j == (self.grid_size - 1) and self.pbc:
+            next_j = 0
+
+        neighbor_pos = [str(next_i) + ';' + str(j),
+                        str(prev_i) + ';' + str(j),
+                        str(i) + ';' + str(next_j),
+                        str(i) + ';' + str(prev_j),
+                        str(next_i) + ';' + str(next_j),
+                        str(prev_i) + ';' + str(next_j),
+                        str(next_i) + ';' + str(prev_j),
+                        str(prev_i) + ';' + str(prev_j)]
 
         # Check that the neighbor positions are actually in the grid
         for n_pos in neighbor_pos.copy():
             if not n_pos in self.cells:
                 neighbor_pos.remove(n_pos)
+
+        return neighbor_pos
+
+    def get_alive_condition(self, idx):
+        neighbor_pos = self.get_neighbors(idx)
 
         alive_neighbors = sum([self.cells[pos]['state'] for pos in neighbor_pos])
         
