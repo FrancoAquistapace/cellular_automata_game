@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid
-from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, MenuButton
 
 
 # Define main simulation class
@@ -29,10 +29,12 @@ class Simulation():
         self.width = 640
         self.height = 640
         self.margin_color = (107, 103, 105)
+        self.menu_color = (85, 82, 84)
         self.button_color_off = (200, 200, 200)
         self.button_color_on = (255, 255, 255)
         self.text_color_1 = (0, 0, 0)
         self.text_color_2 = (250, 250, 250)
+        self.text_color_3 = (178, 176, 178)
 
         # Initialize screen and display
         pygame.init()
@@ -69,11 +71,24 @@ class Simulation():
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.pbc_button = PBCButton(self, self.button_color_on, self.button_color_off, 3, 210, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
+        self.menu_button = MenuButton(self, self.button_color_on, self.text_color_3, 
+                            self.width * 0.7, 7, 
+                            color=self.margin_color, on_color=self.margin_color, size=30)
 
         # Initialize iteration label
         self.iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
         self.iteration_box.fill((0,0,0))
         self.iteration_label = self.font.render('Iteration', True, self.text_color_1)
+
+        # Initialize patterns visualization
+        self.patterns_box = pygame.Surface((0.3 * self.width, 0.07 * self.height))
+        self.patterns_box.fill(self.menu_color)
+        self.menu_box = pygame.Surface((0.3 * self.width, self.height))
+        self.menu_box.fill(self.menu_color)
+        self.patterns_label = self.font.render('Patterns', True, self.text_color_3)
+        self.show_menu = False
+        self.menu_y = (0.06 - 1) * self.height
+        self.menu_speed = 30
 
         # Simulation manipulation
         self.running = False
@@ -117,7 +132,17 @@ class Simulation():
             on_reset = self.rr_button.update(mpos)
             on_clear = self.clear_button.update(mpos)
             on_pbc = self.pbc_button.update(mpos)
+            on_menu = self.menu_button.update(mpos)
             on_grid = self.grid_area.collidepoint(mpos)
+
+            # If the menu has been requested update its position
+            if self.show_menu:
+                self.menu_y += self.menu_speed
+                self.menu_y = min(self.menu_y, 0)
+
+            if not self.show_menu:
+                self.menu_y -= self.menu_speed
+                self.menu_y = max(self.menu_y, (0.06 - 1) * self.height)
 
             # Update grid and render alive cells
             if self.running:
@@ -152,6 +177,9 @@ class Simulation():
                         # If on PBC, toggle PBC configuration in the grid
                         if on_pbc:
                             self.grid.pbc = not self.grid.pbc
+                        # If on menu button open patterns menu
+                        if on_menu:
+                            self.show_menu = not self.show_menu
                         # If we are in the grid area try to toggle the 
                         # closest cell
                         if on_grid:
@@ -228,6 +256,12 @@ class Simulation():
             self.screen.blit(self.iteration_box, (self.width * 0.237, self.height * 0.01))
             self.screen.blit(iteration_text, (self.width * 0.245, self.height * 0.014))
             self.screen.blit(self.iteration_label, (self.width * 0.09, self.height * 0.014))
+
+            # Render patterns text and menu
+            self.screen.blit(self.menu_box, (self.width * 0.7, self.menu_y))
+            self.screen.blit(self.patterns_box, (self.width * 0.7, 0))
+            self.menu_button.render(self.screen)
+            self.screen.blit(self.patterns_label, (self.width * 0.75, self.height * 0.011))
 
             pygame.display.update()
             self.clock.tick(60)

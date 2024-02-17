@@ -177,3 +177,29 @@ class PBCButton(PlayButton):
             pygame.draw.line(surf, self.sim.margin_color, 
                             (x_2, y_range[0]), (x_2, y_range[1]), 
                              width=int(self.size/10))
+
+
+# Menu button
+class MenuButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+    
+    def render(self, surf):
+        if self.sim.show_menu:
+            render_points = [
+                (self.x + self.size / 4, self.y + self.size / 4),
+                (self.x + 3 * self.size / 4, self.y + self.size / 4),
+                (self.x + self.size / 2, self.y + 3 * self.size / 4)
+            ]
+
+        else:
+            render_points = [
+                (self.x + self.size / 4, self.y + self.size / 4),
+                (self.x + 3 * self.size / 4, self.y + self.size / 2),
+                (self.x + self.size / 4, self.y + 3 * self.size / 4)
+            ]
+
+        pygame.draw.polygon(surf, self.play_color, render_points)
