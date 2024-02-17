@@ -101,6 +101,15 @@ class Simulation():
             self.display_offset[0] += self.display_scroll[0] * self.scroll_speed
             self.display_offset[1] += self.display_scroll[1] * self.scroll_speed
 
+            # Limit the offset so that the user cannot go outside the
+            # grid
+            self.display_offset[0] = min(self.display_offset[0], 0)
+            self.display_offset[0] = max(self.display_offset[0], 
+                                         self.screen.get_size()[0] - self.display_size[0])
+            self.display_offset[1] = min(self.display_offset[1], 0)
+            self.display_offset[1] = max(self.display_offset[1], 
+                                         self.screen.get_size()[1] - self.display_size[1])
+
             # Get mouse position and button status
             mpos = pygame.mouse.get_pos()
             on_play = self.play_button.update(mpos)
