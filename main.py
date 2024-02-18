@@ -107,7 +107,16 @@ class Simulation():
                                                       (17,1),(20,-2),(20,-1),(20,0),(21,-2),
                                                       (21,-1),(21,0),(22,-3),(22,1),(24,-3),
                                                       (24,-4),(24,1),(24,2),(34,-2),(34,-1),
-                                                      (35,-2),(35,-1)]}}
+                                                      (35,-2),(35,-1)]},
+                        'Snark': {'alive_cells': [(0,9),(1,9),(1,10),(1,11),(2,12),(3,12),
+                                                  (3,11),(6,3),(6,4),(7,3),(8,3),(8,1),(8,0),
+                                                  (9,0),(9,3),(9,4),(9,5),(9,10),(9,11),
+                                                  (10,10),(10,11),(10,1),(10,2),(10,6),
+                                                  (11,3),(11,4),(11,5),(11,6),(12,3),(12,19),
+                                                  (12,20),(13,19),(13,21),(14,21),(15,21),
+                                                  (15,22),(13,4),(13,5),(13,6),(14,7),(15,2),
+                                                  (15,3),(15,4),(15,5),(15,6),(16,2),(17,4),
+                                                  (18,3),(18,4)]}}
 
         for i, asset in enumerate(self.assets):
             y = (i + 1) * 0.07 * self.height + 0.02 * self.height
@@ -304,13 +313,14 @@ class Simulation():
 
 
             # Show where the cell toggle would occur
-            pos = [(mpos[0] - self.display_offset[0]) * self.width / self.display_size[0], 
-                   (mpos[1] - self.display_offset[1]) *  self.height / self.display_size[1]]
-            x = (int(pos[0]) * int(self.grid_size * 1.1) / self.width)
-            y = (int(pos[1]) * int(self.grid_size * 1.1) / self.height)
-            toggle_pos = [int(x) * self.width // int(self.grid_size * 1.1), 
-                          int(y) * self.height // int(self.grid_size * 1.1)]
-            self.display.blit(self.toggle_rect, toggle_pos)
+            if not self.drawing_asset:
+                pos = [(mpos[0] - self.display_offset[0]) * self.width / self.display_size[0], 
+                    (mpos[1] - self.display_offset[1]) *  self.height / self.display_size[1]]
+                x = (int(pos[0]) * int(self.grid_size * 1.1) / self.width)
+                y = (int(pos[1]) * int(self.grid_size * 1.1) / self.height)
+                toggle_pos = [int(x) * self.width // int(self.grid_size * 1.1), 
+                            int(y) * self.height // int(self.grid_size * 1.1)]
+                self.display.blit(self.toggle_rect, toggle_pos)
             
             # Blit display and update screen
             scaled_display = pygame.transform.scale(self.display, 
