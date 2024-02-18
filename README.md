@@ -5,6 +5,12 @@ This app allows the user to simulate a 100x100 grid of a cellular automata, more
 
 Althoug the grid is closed by default, the boundaries can be opened so that the grid loops around.
 
+## Controls
+- Left/Right/Up/Down: scroll through the grid in a given direction.
+- R: Rotate the selected pattern clockwise
+- F: Flip the selected pattern horizontally.
+- Mouse scroll up/down: Zoom in/out.
+
 
 ## Usage
 To run the python implementation the following command must be entered in a terminal inside the folder with the scripts:
