@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid, GridAsset
-from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, BackButton, MenuButton, AssetButton
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, BackButton, MenuButton, UnselectButton, AssetButton
 
 
 # Define main simulation class
@@ -78,6 +78,9 @@ class Simulation():
         self.menu_button = MenuButton(self, self.button_color_on, self.text_color_3, 
                             self.width * 0.7, 7, 
                             color=self.margin_color, on_color=self.margin_color, size=30)
+        self.unselect_button = UnselectButton(self, self.button_color_on, self.text_color_3, 
+                            self.width * 0.93, self.height * 0.005, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
 
         # Initialize iteration label
         self.iteration_box = pygame.Surface((0.12 * self.width, 0.05 * self.height))
@@ -95,7 +98,16 @@ class Simulation():
         self.menu_speed = 30
 
         # Initialize pattern assets
-        self.assets = {'Glider': {'alive_cells': [(0,0), (0,1), (0,2), (1,2), (2,1)]}}
+        self.assets = {'8-Line': {'alive_cells': [(0,i) for i in range(8)]},
+                       'Glider': {'alive_cells': [(0,0), (0,1), (0,2), (1,2), (2,1)]},
+                       'Gosper gun': {'alive_cells': [(0,0),(0,1),(1,0),(1,1), 
+                                                      (10,0),(10,1),(10,2),(11,-1),(11,3),
+                                                      (12,-2),(12,4),(13,-2),(13,4),(14,1),
+                                                      (15,-1),(15,3),(16,0),(16,1),(16,2),
+                                                      (17,1),(20,-2),(20,-1),(20,0),(21,-2),
+                                                      (21,-1),(21,0),(22,-3),(22,1),(24,-3),
+                                                      (24,-4),(24,1),(24,2),(34,-2),(34,-1),
+                                                      (35,-2),(35,-1)]}}
 
         for i, asset in enumerate(self.assets):
             y = (i + 1) * 0.07 * self.height + 0.02 * self.height
@@ -155,6 +167,9 @@ class Simulation():
             on_back = self.back_button.update(mpos)
             on_menu = self.menu_button.update(mpos)
             on_grid = self.grid_area.collidepoint(mpos)
+            on_unselect = False
+            if self.drawing_asset:
+                on_unselect = self.unselect_button.update(mpos)
 
             # If the menu has been requested update its position
             # and get status for each asset
@@ -216,14 +231,11 @@ class Simulation():
                             self.grid.alive_cells = [self.initial_state[cell]['pos'] for cell in self.initial_state if self.initial_state[cell]['state'] == 1]
                             self.iteration = 0
                             self.running = False
-                        # If on menu button open patterns menu
-                        if on_menu:
-                            self.show_menu = not self.show_menu
                         # If we are in the grid area try to toggle the 
                         # closest cell
                         if on_grid:
                             # If we have selected a pattern, print it
-                            if self.drawing_asset:
+                            if self.drawing_asset and not self.show_menu:
                                 self.selected_asset.print_to_grid(mpos, self.grid)
                             # Else toggle the cell
                             elif not self.show_menu:
@@ -233,9 +245,18 @@ class Simulation():
                         if self.show_menu:
                             for asset in self.assets:
                                 if self.assets[asset]['on_asset']:
-                                    self.drawing_asset = not self.drawing_asset
+                                    self.drawing_asset = True
                                     self.selected_asset = GridAsset(self)
                                     self.selected_asset.set_alive_cells(self.assets[asset]['alive_cells'])
+                                    self.show_menu = False
+
+                        # If on menu button open patterns menu
+                        if on_menu:
+                            self.show_menu = not self.show_menu
+                        
+                        if on_unselect:
+                            self.drawing_asset = False
+                            self.selected_asset = None
                         
 
                     # Zoom in
@@ -322,6 +343,7 @@ class Simulation():
             self.screen.blit(self.patterns_box, (self.width * 0.7, 0))
             self.menu_button.render(self.screen)
             self.screen.blit(self.patterns_label, (self.width * 0.75, self.height * 0.011))
+            self.unselect_button.render(self.screen)
 
             pygame.display.update()
             self.clock.tick(60)

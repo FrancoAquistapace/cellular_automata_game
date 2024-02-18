@@ -225,6 +225,24 @@ class MenuButton(PlayButton):
         pygame.draw.polygon(surf, self.play_color, render_points)
 
 
+# Unselection button
+class UnselectButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+
+    def render(self, surf):
+        width = int(self.size / 40)
+        if self.sim.drawing_asset:
+            width = 0
+        center = (self.x + self.size / 2, self.y + self.size / 2)
+        pygame.draw.circle(surf, self.play_color, center, 
+                            radius=self.size/4, width=width)
+        
+
+
 # Asset button
 class AssetButton():
     def __init__(self, text, x, y, size=[20,20], off_color=(200, 200, 200), 
