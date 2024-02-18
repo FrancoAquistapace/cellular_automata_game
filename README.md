@@ -13,7 +13,7 @@ Althoug the grid is closed by default, the boundaries can be opened so that the 
 
 
 ## Usage
-To run the python implementation the following command must be entered in a terminal inside the folder with the scripts:
+The application is bundled as an executable file, which can be found in the dist folder. The application can be run by simply double-clicking on the executable. To run the python implementation the following command must be entered in a terminal inside the folder with the scripts:
 
 ```python3 main.py```
 
