@@ -179,6 +179,26 @@ class PBCButton(PlayButton):
                              width=int(self.size/10))
 
 
+# Backwards button
+class BackButton(PlayButton):
+    def __init__(self, sim, play_color_on, play_color_off, x, y, 
+                 size=20, color=(200, 200, 200), 
+                 on_color=(255, 255, 255)):
+        super().__init__(sim, play_color_on, play_color_off, x, y, 
+                         size, color, on_color)
+        self.img = pygame.Surface((int(self.size / 6), int(1.05 * self.size/2)))
+        self.img.fill(self.play_color)
+
+    def render(self, surf):
+        render_points = [
+            (self.x + self.size / 2, self.y + self.size / 4),
+            (self.x + self.size / 4, self.y + self.size / 2),
+            (self.x + self.size / 2, self.y + 3 * self.size / 4)
+        ]
+        pygame.draw.polygon(surf, self.play_color, render_points)
+        self.img.fill(self.play_color)
+        surf.blit(self.img, (self.x + 1.25 * self.size / 2, self.y + self.size / 4))
+
 # Menu button
 class MenuButton(PlayButton):
     def __init__(self, sim, play_color_on, play_color_off, x, y, 

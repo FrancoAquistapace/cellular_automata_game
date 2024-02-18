@@ -20,7 +20,7 @@ import sys
 
 # Import scripts
 from grid import Grid, GridAsset
-from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, MenuButton, AssetButton
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, BackButton, MenuButton, AssetButton
 
 
 # Define main simulation class
@@ -56,6 +56,8 @@ class Simulation():
         self.grid_size = 100
         self.grid = Grid(self, self.grid_size)
         self.iteration = 0
+        # Save initial grid state
+        self.initial_state = self.grid.get_cells()
 
         # Initialize font
         self.font = pygame.font.SysFont('Times New Roman', 26)
@@ -70,6 +72,8 @@ class Simulation():
         self.clear_button = ClearButton(self, self.button_color_on, self.button_color_off, 3, 170, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.pbc_button = PBCButton(self, self.button_color_on, self.button_color_off, 3, 210, 
+                            color=self.margin_color, on_color=self.margin_color, size=40)
+        self.back_button = BackButton(self, self.button_color_on, self.button_color_off, 3, 250, 
                             color=self.margin_color, on_color=self.margin_color, size=40)
         self.menu_button = MenuButton(self, self.button_color_on, self.text_color_3, 
                             self.width * 0.7, 7, 
@@ -148,6 +152,7 @@ class Simulation():
             on_reset = self.rr_button.update(mpos)
             on_clear = self.clear_button.update(mpos)
             on_pbc = self.pbc_button.update(mpos)
+            on_back = self.back_button.update(mpos)
             on_menu = self.menu_button.update(mpos)
             on_grid = self.grid_area.collidepoint(mpos)
 
@@ -167,6 +172,10 @@ class Simulation():
             if not self.show_menu:
                 self.menu_y -= self.menu_speed
                 self.menu_y = max(self.menu_y, (0.06 - 1) * self.height)
+
+            # As long as we are in iteration 0, store the initial grid status
+            if self.iteration == 0:
+                self.initial_state = self.grid.get_cells()
 
             # Update grid and render alive cells
             if self.running:
@@ -201,6 +210,12 @@ class Simulation():
                         # If on PBC, toggle PBC configuration in the grid
                         if on_pbc:
                             self.grid.pbc = not self.grid.pbc
+                        # If on back, return to initial grid state
+                        if on_back:
+                            self.grid.cells = self.initial_state.copy()
+                            self.grid.alive_cells = [self.initial_state[cell]['pos'] for cell in self.initial_state if self.initial_state[cell]['state'] == 1]
+                            self.iteration = 0
+                            self.running = False
                         # If on menu button open patterns menu
                         if on_menu:
                             self.show_menu = not self.show_menu
@@ -291,6 +306,7 @@ class Simulation():
             self.rr_button.render(self.screen)
             self.clear_button.render(self.screen)
             self.pbc_button.render(self.screen)
+            self.back_button.render(self.screen)
 
             # Render iteration text
             iteration_str = str(self.iteration) if self.iteration <= 9999 else '+9999'

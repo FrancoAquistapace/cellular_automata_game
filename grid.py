@@ -47,6 +47,14 @@ class Grid():
 
         self.alive_cells = [self.cells[cell]['pos'] for cell in self.cells if self.cells[cell]['state'] == 1]
 
+    def get_cells(self):
+        out_cells = dict()
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                out_cells[str(i) + ';' + str(j)] = {'pos': [i, j], 
+                                        'state': 0 + self.cells[str(i)+';'+str(j)]['state']}
+        return out_cells
+
     def clear(self):
         # Clear the grid
         self.cells = dict()
