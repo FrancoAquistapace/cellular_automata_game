@@ -249,6 +249,11 @@ class Simulation():
                     if event.key == pygame.K_DOWN:
                         self.display_scroll[1] = -1
                         self.centered = False
+                    # Asset operations
+                    if event.key == pygame.K_r and self.drawing_asset:
+                        self.selected_asset.rotate()
+                    if event.key == pygame.K_f and self.drawing_asset:
+                        self.selected_asset.flip()
 
                 if event.type == pygame.KEYUP:
                     # Deactivate scrolling

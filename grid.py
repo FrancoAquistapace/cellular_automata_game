@@ -172,6 +172,20 @@ class GridAsset():
     def set_alive_cells(self, pattern):
         self.alive_cells = pattern.copy()
 
+    def rotate(self):
+        # Do a pi/2 clock rotation
+        new_alive_cells = []
+        for pos in self.alive_cells.copy():
+            new_alive_cells.append([-pos[1], pos[0]])
+        self.set_alive_cells(new_alive_cells)
+
+    def flip(self):
+        # Do a flip over the y axis
+        new_alive_cells = []
+        for pos in self.alive_cells.copy():
+            new_alive_cells.append([-pos[0], pos[1]])
+        self.set_alive_cells(new_alive_cells)
+
     def print_to_grid(self, mpos, grid):
         # Get reference cell position from mouse pos
         ref_pos = [(mpos[0] - self.sim.display_offset[0]) * self.sim.width / self.sim.display_size[0], 
