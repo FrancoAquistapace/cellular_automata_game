@@ -203,3 +203,28 @@ class MenuButton(PlayButton):
             ]
 
         pygame.draw.polygon(surf, self.play_color, render_points)
+
+
+# Asset button
+class AssetButton():
+    def __init__(self, text, x, y, size=[20,20], off_color=(200, 200, 200), 
+                        on_color=(255, 255, 255), rect_pos=[0,0]):
+        self.text = text
+        self.text_color = off_color
+        self.x = x
+        self.y = y
+        self.size = size
+        self.off_color = off_color
+        self.on_color = on_color
+        self.rect_pos = rect_pos
+        self.rect = pygame.Rect(rect_pos[0], rect_pos[1], self.size[0], self.size[1])
+
+    def update(self, mpos):
+        self.text_color = self.off_color
+        if self.rect.collidepoint(mpos):
+            self.text_color = self.on_color
+            return True
+        return False
+
+    def render(self, surf, font):
+        surf.blit(font.render(self.text, True, self.text_color), (self.x, self.y))

@@ -19,8 +19,8 @@ import pygame
 import sys
 
 # Import scripts
-from grid import Grid
-from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, MenuButton
+from grid import Grid, GridAsset
+from button import PlayButton, RefocusButton, RandomResetButton, ClearButton, PBCButton, MenuButton, AssetButton
 
 
 # Define main simulation class
@@ -90,6 +90,22 @@ class Simulation():
         self.menu_y = (0.06 - 1) * self.height
         self.menu_speed = 30
 
+        # Initialize pattern assets
+        self.assets = {'Glider': {'alive_cells': [(0,0), (0,1), (0,2), (1,2), (2,1)]}}
+
+        for i, asset in enumerate(self.assets):
+            y = (i + 1) * 0.07 * self.height + 0.02 * self.height
+            rect_x = self.width * 0.7
+            self.assets[asset]['button'] = AssetButton(asset, x=self.width*0.03, y=y, 
+                                                size=[0.3 * self.width, 0.07 * self.height], 
+                                                off_color=self.text_color_3, 
+                                                on_color=(255, 255, 255), 
+                                                rect_pos=[rect_x, y])
+            self.assets[asset]['on_asset'] = False
+        
+        self.selected_asset = None
+        self.drawing_asset = False
+
         # Simulation manipulation
         self.running = False
         self.grid_area = pygame.Rect(0.07 * self.width, 0.07 * self.height, self.width, self.height)
@@ -136,9 +152,17 @@ class Simulation():
             on_grid = self.grid_area.collidepoint(mpos)
 
             # If the menu has been requested update its position
+            # and get status for each asset
             if self.show_menu:
+                self.running = False
                 self.menu_y += self.menu_speed
                 self.menu_y = min(self.menu_y, 0)
+                for asset in self.assets:
+                    self.assets[asset]['on_asset'] = self.assets[asset]['button'].update(mpos)
+
+            # If an asset has been selected, render its position on the grid
+            if self.drawing_asset:
+                self.selected_asset.render(self.display, mpos)
 
             if not self.show_menu:
                 self.menu_y -= self.menu_speed
@@ -183,7 +207,20 @@ class Simulation():
                         # If we are in the grid area try to toggle the 
                         # closest cell
                         if on_grid:
-                            self.grid.toggle_cell(mpos)
+                            # If we have selected a pattern, print it
+                            if self.drawing_asset:
+                                self.selected_asset.print_to_grid(mpos, self.grid)
+                            # Else toggle the cell
+                            elif not self.show_menu:
+                                self.grid.toggle_cell(mpos)
+                        # Check if any pattern has been selected from 
+                        # the menu
+                        if self.show_menu:
+                            for asset in self.assets:
+                                if self.assets[asset]['on_asset']:
+                                    self.drawing_asset = not self.drawing_asset
+                                    self.selected_asset = GridAsset(self)
+                                    self.selected_asset.set_alive_cells(self.assets[asset]['alive_cells'])
                         
 
                     # Zoom in
@@ -258,6 +295,8 @@ class Simulation():
             self.screen.blit(self.iteration_label, (self.width * 0.09, self.height * 0.014))
 
             # Render patterns text and menu
+            for asset in self.assets:
+                self.assets[asset]['button'].render(self.menu_box, self.font)
             self.screen.blit(self.menu_box, (self.width * 0.7, self.menu_y))
             self.screen.blit(self.patterns_box, (self.width * 0.7, 0))
             self.menu_button.render(self.screen)

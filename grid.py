@@ -161,3 +161,46 @@ class Grid():
                                         self.sim.height // int(self.sim.grid_size * 1.1)))
             cell_surf.fill((255,255,255))
             surf.blit(cell_surf, pos)
+
+
+# Class for grid patterns
+class GridAsset():
+    def __init__(self, sim):
+        self.alive_cells = []
+        self.sim = sim
+    
+    def set_alive_cells(self, pattern):
+        self.alive_cells = pattern.copy()
+
+    def print_to_grid(self, mpos, grid):
+        # Get reference cell position from mouse pos
+        ref_pos = [(mpos[0] - self.sim.display_offset[0]) * self.sim.width / self.sim.display_size[0], 
+               (mpos[1] - self.sim.display_offset[1]) *  self.sim.height / self.sim.display_size[1]]
+        ref_x = (int(ref_pos[0]) * int(self.sim.grid_size * 1.1) / self.sim.width) - int(self.sim.grid_size*0.09)
+        ref_y = (int(ref_pos[1]) * int(self.sim.grid_size * 1.1) / self.sim.height) - int(self.sim.grid_size*0.09)
+        # Print pattern to the grid
+        for pos in self.alive_cells:
+            idx = str(int(pos[0] + ref_x)) + ';' + str(int(pos[1] + ref_y))
+            if idx in grid.cells:
+                grid.cells[idx]['state'] = 1
+                if not grid.cells[idx]['pos'] in grid.alive_cells:
+                    grid.alive_cells.append(grid.cells[idx]['pos'])
+
+    def render(self, surf, mpos):
+        # Get reference from mouse pos
+        ref_pos = [(mpos[0] - self.sim.display_offset[0]) * self.sim.width / self.sim.display_size[0], 
+                (mpos[1] - self.sim.display_offset[1]) *  self.sim.height / self.sim.display_size[1]]
+        ref_x = (int(ref_pos[0]) * int(self.sim.grid_size * 1.1) / self.sim.width) - int(self.sim.grid_size * 0.09)
+        ref_y = (int(ref_pos[1]) * int(self.sim.grid_size * 1.1) / self.sim.height) - int(self.sim.grid_size*0.09)
+        toggle_pos = [int(ref_x) * self.sim.width // int(self.sim.grid_size * 1.1), 
+                      int(ref_y) * self.sim.height // int(self.sim.grid_size * 1.1)]
+        
+        # Render grey squares at the position of each 
+        # cell in the pattern
+        for cell in self.alive_cells:
+            pos = [(int(self.sim.grid_size*0.09) + cell[0]) * self.sim.width // int(self.sim.grid_size * 1.1), 
+                   (int(self.sim.grid_size*0.09) + cell[1]) * self.sim.height // int(self.sim.grid_size * 1.1)]
+            cell_surf = pygame.Surface((self.sim.width // int(self.sim.grid_size * 1.1), 
+                                        self.sim.height // int(self.sim.grid_size * 1.1)))
+            cell_surf.fill((200,200,200))
+            surf.blit(cell_surf, (toggle_pos[0] + pos[0], toggle_pos[1] + pos[1]))
